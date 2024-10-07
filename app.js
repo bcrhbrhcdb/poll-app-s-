@@ -11,11 +11,13 @@ const pollList = document.getElementById('poll-list');
 const pollOptions = document.getElementById('poll-options');
 
 // Event listeners
-document.getElementById('login-btn').addEventListener('click', login);
-document.getElementById('signup-btn').addEventListener('click', signup);
-document.getElementById('create-poll-btn').addEventListener('click', showCreatePollForm);
-document.getElementById('add-option-btn').addEventListener('click', addOptionInput);
-document.getElementById('submit-poll-btn').addEventListener('click', createPoll);
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('login-btn').addEventListener('click', login);
+    document.getElementById('signup-btn').addEventListener('click', signup);
+    document.getElementById('create-poll-btn').addEventListener('click', showCreatePollForm);
+    document.getElementById('add-option-btn').addEventListener('click', addOptionInput);
+    document.getElementById('submit-poll-btn').addEventListener('click', createPoll);
+});
 
 async function login() {
     const username = document.getElementById('username').value;
