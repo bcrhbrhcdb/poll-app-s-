@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poll App</title>
+    <title>Professional Poll App</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="app">
+    <div id="loading-screen">
+        <div class="loader"></div>
+    </div>
+    <div id="app" style="display: none;">
         <h1>Poll App</h1>
         <div id="auth-container">
             <input type="text" id="username" placeholder="Username">
@@ -19,10 +22,12 @@
             <h2>Polls</h2>
             <ul id="poll-list"></ul>
             <button id="create-poll-btn">Create New Poll</button>
+            <button id="view-polls-btn">View All Polls</button>
         </div>
         <div id="create-poll-container" style="display: none;">
             <h2>Create New Poll</h2>
             <input type="text" id="poll-title" placeholder="Poll Title">
+            <input type="datetime-local" id="poll-deadline">
             <div id="options-container">
                 <input type="text" class="option-input" placeholder="Option 1">
                 <input type="text" class="option-input" placeholder="Option 2">
@@ -32,6 +37,7 @@
         </div>
         <div id="poll-container" style="display: none;">
             <h2 id="poll-title"></h2>
+            <p id="poll-deadline"></p>
             <div id="poll-options"></div>
         </div>
     </div>
