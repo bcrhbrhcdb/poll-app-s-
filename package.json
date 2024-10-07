@@ -1,0 +1,22 @@
+{
+  "name": "poll-app",
+  "version": "1.0.0",
+  "description": "d",
+  "main": "app.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bcrhbrhcdb/poll-app-s-.git"
+  },
+  "keywords": [
+    "start"
+  ],
+  "author": "nub",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bcrhbrhcdb/poll-app-s-/issues"
+  },
+  "homepage": "https://github.com/bcrhbrhcdb/poll-app-s-#readme"
+}

@@ -1,0 +1,49 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+input, button {
+    margin: 5px 0;
+    padding: 5px;
+}
+
+button {
+    cursor: pointer;
+}
+
+#poll-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.poll-option {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.poll-option:hover {
+    background-color: #f0f0f0;
+}
+
+.poll-option-bar {
+    height: 20px;
+    background-color: #4CAF50;
+    width: 0;
+    transition: width 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
