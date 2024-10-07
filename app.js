@@ -22,44 +22,49 @@ document.addEventListener('DOMContentLoaded', () => {
 async function login() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    const { data, error } = await supabase.auth.signInWithPassword({
-        email: `${username}@example.com`,
-        password: password,
+    const { data, error } = await supabase.rpc('authenticate_user', {
+        p_username: username,
+        p_password: password
     });
     if (error) alert(error.message);
-    else {
-        currentUser = data.user;
+    else if (data) {
+        currentUser = { id: data, username: username };
         showPollList();
+    } else {
+        alert('Invalid username or password');
     }
 }
 
 async function signup() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    const { data, error } = await supabase.auth.signUp({
-        email: `${username}@example.com`,
-        password: password,
+    const { data, error } = await supabase.rpc('sign_up_user', {
+        p_username: username,
+        p_password: password
     });
     if (error) alert(error.message);
-    else {
-        await supabase.from('users').insert({ id: data.user.id, username });
-        currentUser = data.user;
+    else if (data) {
+        currentUser = { id: data, username: username };
         showPollList();
+    } else {
+        alert('Failed to create user');
     }
 }
 
 async function showPollList() {
     authContainer.style.display = 'none';
     pollListContainer.style.display = 'block';
-    const { data: polls, error } = await supabase.from('polls').select('*');
+    const { data: polls, error } = await supabase.rpc('get_user_polls', {
+        p_user_id: currentUser.id
+    });
     if (error) alert(error.message);
     else {
         pollList.innerHTML = '';
         polls.forEach(poll => {
             const li = document.createElement('li');
-            li.textContent = poll.title;
+            li.textContent = poll.poll_title;
             li.classList.add('fade-in');
-            li.addEventListener('click', () => showPoll(poll.id));
+            li.addEventListener('click', () => showPoll(poll.poll_id));
             pollList.appendChild(li);
         });
     }
@@ -80,33 +85,23 @@ function addOptionInput() {
 }
 
 async function createPoll() {
+    if (!currentUser) {
+        alert('You must be logged in to create a poll');
+        return;
+    }
+
     const title = document.getElementById('poll-title').value;
     const optionInputs = document.querySelectorAll('.option-input');
     const options = Array.from(optionInputs).map(input => input.value).filter(value => value.trim() !== '');
 
-    const { data: poll, error: pollError } = await supabase
-        .from('polls')
-        .insert({ title, user_id: currentUser.id })
-        .select()
-        .single();
+    const { data, error } = await supabase.rpc('create_poll', {
+        p_title: title,
+        p_user_id: currentUser.id,
+        p_options: options
+    });
 
-    if (pollError) {
-        alert(pollError.message);
-        return;
-    }
-
-    const optionsToInsert = options.map(option => ({
-        poll_id: poll.id,
-        text: option,
-        votes: 0
-    }));
-
-    const { error: optionsError } = await supabase
-        .from('options')
-        .insert(optionsToInsert);
-
-    if (optionsError) {
-        alert(optionsError.message);
+    if (error) {
+        alert(error.message);
         return;
     }
 
@@ -117,38 +112,22 @@ async function showPoll(pollId) {
     pollListContainer.style.display = 'none';
     pollContainer.style.display = 'block';
 
-    const { data: poll, error: pollError } = await supabase
-        .from('polls')
-        .select('*')
-        .eq('id', pollId)
-        .single();
+    const { data: results, error } = await supabase.rpc('get_poll_results', {
+        p_poll_id: pollId
+    });
 
-    if (pollError) {
-        alert(pollError.message);
+    if (error) {
+        alert(error.message);
         return;
     }
 
-    const { data: options, error: optionsError } = await supabase
-        .from('options')
-        .select('*')
-        .eq('poll_id', pollId);
-
-    if (optionsError) {
-        alert(optionsError.message);
-        return;
-    }
-
-    document.getElementById('poll-title').textContent = poll.title;
+    document.getElementById('poll-title').textContent = results[0].poll_title;
     pollOptions.innerHTML = '';
 
-    const totalVotes = options.reduce((sum, option) => sum + option.votes, 0);
-
-    options.forEach(option => {
+    results.forEach(option => {
         const optionElement = document.createElement('div');
         optionElement.className = 'poll-option fade-in';
-        optionElement.textContent = option.text;
-        
-        const votePercentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
+        optionElement.textContent = `${option.option_text} (${option.vote_count} votes, ${option.percentage}%)`;
         
         const barElement = document.createElement('div');
         barElement.className = 'poll-option-bar';
@@ -157,17 +136,17 @@ async function showPoll(pollId) {
         optionElement.appendChild(barElement);
         pollOptions.appendChild(optionElement);
         
-        optionElement.addEventListener('click', () => vote(option.id, pollId));
+        optionElement.addEventListener('click', () => vote(option.option_id, pollId));
         
         setTimeout(() => {
-            barElement.style.width = `${votePercentage}%`;
+            barElement.style.width = `${option.percentage}%`;
         }, 100);
     });
 }
 
 async function vote(optionId, pollId) {
     const { error } = await supabase.rpc('increment_vote', {
-        option_id: optionId,
+        option_id: optionId
     });
 
     if (error) {
